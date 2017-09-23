@@ -1,6 +1,6 @@
 @import controllers.routes.LoginController
 
-@(continue: String, errorMessage: Option[String] = None)(implicit request: Request[_]) {
+@(continue: String, errorMessage: Option[String] = None)(implicit request: Request[_], messages: Messages) {
 
     <html>
         <head><title>Login</title></head>
@@ -11,17 +11,20 @@
 
                 @helper.form(action = LoginController.login()) {
 
+                    @errorMessage.map { error =>
+                        <span>@Messages(error)</span>
+                    }
                     <div>
                         @helper.CSRF.formField
                         <input type="hidden" name="continue" id="continue" value="@{continue}">
 
                         <div>
                             <label for="userId">User ID</label>
-                            <input type="text" id="userId" name="userId">
+                            <input type="text" id="userId" name="userId" required>
                         </div>
                         <div>
                             <label for="password">Password</label>
-                            <input type="password" id="password" name="password">
+                            <input type="password" id="password" name="password" required>
                         </div>
                         <div>
                             <button id="submit" type="submit">Sign in</button>

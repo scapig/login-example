@@ -1,7 +1,7 @@
 package models
 
+import java.util.UUID
+
 import org.joda.time.DateTime
 
-
-case class Session(id: String, createdAt: DateTime = DateTime.now())
-
+case class Session(userId: String, id: String = UUID.randomUUID().toString, createdAt: DateTime = DateTime.now())
