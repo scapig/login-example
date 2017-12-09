@@ -13,7 +13,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class SessionRepositorySpec extends UnitSpec with BeforeAndAfterEach {
 
   lazy val fakeApplication: Application = new GuiceApplicationBuilder()
-    .configure("mongodb.uri" -> "mongodb://localhost:27017/tapi-oauth-login-test")
+    .configure("mongodb.uri" -> "mongodb://localhost:27017/scapig-oauth-login-test")
     .build()
 
   val session = Session(UUID.randomUUID().toString)

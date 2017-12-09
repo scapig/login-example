@@ -17,7 +17,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class SessionRepository @Inject()(val reactiveMongoApi: ReactiveMongoApi)  {
 
   val repository: Future[JSONCollection] =
-    reactiveMongoApi.database.map(_.collection[JSONCollection]("tapi-auth-login"))
+    reactiveMongoApi.database.map(_.collection[JSONCollection]("scapig-auth-login"))
 
   def create(session: Session): Future[Session] = {
     repository.flatMap(collection =>
