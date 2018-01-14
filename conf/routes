@@ -4,3 +4,5 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 POST    /login                      @controllers.LoginController.login()
 
 GET     /login                      @controllers.LoginController.showLoginPage(continue)
+
+->          /webjars                webjars.Routes

@@ -1,38 +1,59 @@
 @import controllers.routes.LoginController
+@import org.webjars.play.WebJarsUtil
 
-@(continue: String, errorMessage: Option[String] = None)(implicit request: Request[_], messages: Messages) {
+@(form: Form[controllers.LoginForm])(implicit request: Request[_], messages: Messages, webJarsUtil: WebJarsUtil, assets: AssetsFinder)
 
-    <html>
-        <head><title>Login</title></head>
-        <body>
-            <div>
-                <h1>Sign in</h1>
-                <p>Enter your Test User credentials to sign in.</p>
-
-                @helper.form(action = LoginController.login()) {
-
-                    @errorMessage.map { error =>
-                        <span>@Messages(error)</span>
-                    }
-                    <div>
-                        @helper.CSRF.formField
-                        <input type="hidden" name="continue" id="continue" value="@{continue}">
-
-                        <div>
-                            <label for="userId">User ID</label>
-                            <input type="text" id="userId" name="userId" required>
-                        </div>
-                        <div>
-                            <label for="password">Password</label>
-                            <input type="password" id="password" name="password" required>
-                        </div>
-                        <div>
-                            <button id="submit" type="submit">Sign in</button>
-                        </div>
-                    </div>
-                }
+    @main = {
+        <section>
+            <div class="container text-center" style="padding-top: 20px;">
+                <h1 class="s-header"><strong>Test Login</strong></h1>
             </div>
+        </section>
+        <section>
+            <div class="container landing">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="alert alert-info" role="alert">
+                        This is a login simulation page.
+                        Enter the test credentials user1/password1 to sign in.
+                        </div>
 
-        </body>
-    </html>
-}
+                        @helper.form(action = LoginController.login()) {
+
+                            @if(form.hasErrors) {
+                                <div class="alert alert-danger" role="alert">
+                                @for(error <- form.errors) {
+                                    @Messages(error.message)<br/>
+                                }
+                                </div>
+                            }
+
+                            @helper.CSRF.formField
+
+                            <input type="hidden" name="continue" id="continue" value="@{form.data.get("continue")}">
+
+                            <div class="form-group">
+                                <label for="userId"><strong>User ID</strong></label>
+                                <input type="text" class="form-control" id="userId" name="userId"
+                                value="@form.data.getOrElse("userId", "")"
+                                aria-required="true"/>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password"><strong>Password</strong></label>
+                                <input type="password" class="form-control" id="password"
+                                name="password"
+                                aria-hidden="true"
+                                aria-required="true"/>
+                            </div>
+                            <div>
+                                <button id="submit" class="btn btn-primary" type="submit">Sign in</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
+
+@include.template("Scapig - Test Login", main)

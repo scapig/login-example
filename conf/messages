@@ -1,0 +1,3 @@
+credentials.error.invalid.field=Invalid username or password
+userid.error.required.field=Provide your user ID
+password.error.required.field=Provide your password

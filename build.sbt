@@ -16,6 +16,11 @@ resolvers += "Akka Snapshot Repository" at "http://repo.akka.io/snapshots/"
 scalaVersion := "2.12.2"
 
 libraryDependencies ++= Seq( ws, guice )
+
+libraryDependencies += "org.webjars" %% "webjars-play" % "2.6.1"
+libraryDependencies += "org.webjars" % "bootstrap" % "3.3.7-1" exclude("org.webjars", "jquery")
+libraryDependencies += "org.webjars" % "jquery" % "3.2.1"
+
 libraryDependencies += "org.reactivemongo" %% "play2-reactivemongo" % "0.12.6-play26"
 libraryDependencies += "com.typesafe.play" %% "play-json-joda" % "2.6.0"
 
