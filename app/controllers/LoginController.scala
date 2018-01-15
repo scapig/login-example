@@ -2,13 +2,16 @@ package controllers
 
 import javax.inject.{Inject, Singleton}
 
+import com.mohiva.play.silhouette.api.{LoginInfo, Silhouette}
+import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
+import config.DefaultEnv
 import models.InvalidLoginException
 import play.api.data.Forms._
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.i18n.MessagesApi
 import play.api.mvc.{AbstractController, ControllerComponents, Results, Session}
-import services.LoginService
+import services.UserService
 import org.webjars.play.WebJarsUtil
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -19,18 +22,11 @@ import scala.concurrent.Future.successful
 class LoginController  @Inject()(
                                   cc: ControllerComponents,
                                   messages: MessagesApi,
-                                  loginService: LoginService)(implicit webJarsUtil: WebJarsUtil, assets: AssetsFinder) extends AbstractController(cc) with play.api.i18n.I18nSupport {
-
-  private val loginForm = Form(
-    mapping(
-      "userId" -> nonEmptyText,
-      "password" -> nonEmptyText,
-      "continue" -> nonEmptyText
-    )(LoginForm.apply)(LoginForm.unapply)
-  )
+                                  userService: UserService,
+                                  silhouette: Silhouette[DefaultEnv])(implicit webJarsUtil: WebJarsUtil, assets: AssetsFinder) extends AbstractController(cc) with play.api.i18n.I18nSupport {
 
   def showLoginPage(continue: String) = Action.async { implicit request =>
-    successful(Ok(views.html.login(loginForm.fill(LoginForm("", "", continue)))))
+    successful(Ok(views.html.login(LoginForm.form.fill(LoginForm("", "", continue)))))
   }
 
   def login() = Action.async { implicit request =>
@@ -39,9 +35,13 @@ class LoginController  @Inject()(
     }
 
     def loginWithValidForm(validForm: LoginForm) = {
-      loginService.authenticate(validForm.userId, validForm.password) map { session =>
-        Redirect(validForm.continue).withSession(playSession(session))
-      } recover {
+      (for {
+        sessionResponse <- userService.authenticate(validForm.userId, validForm.password)
+        authenticator <- silhouette.env.authenticatorService.create(LoginInfo(CredentialsProvider.ID, sessionResponse.userId))
+        result <- silhouette.env.authenticatorService.init(authenticator).flatMap { v =>
+          silhouette.env.authenticatorService.embed(v, Results.Redirect(validForm.continue))
+        }
+      } yield result) recover {
         case _: InvalidLoginException => Results.BadRequest(
           views.html.login(LoginForm.form.fill(validForm).withGlobalError(FormKeys.invalidCredentialsKey)))
       }
@@ -49,11 +49,6 @@ class LoginController  @Inject()(
 
     LoginForm.form.bindFromRequest.fold(loginWithFormErrors, loginWithValidForm)
   }
-
-  private def playSession(session: models.Session) = Session(Map(
-    "userId" -> session.userId,
-    "sessionId" -> session.id,
-  ))
 }
 
 
